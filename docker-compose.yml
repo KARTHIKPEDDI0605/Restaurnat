@@ -1,0 +1,53 @@
+services:
+  mysql:
+    platform: linux/x86_64
+    image: mysql:8.0.40  # Ensure you're using MySQL 8.0 or the version that matches your application
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=RestaurantDB
+    ports:
+      - "3306:3306"
+    networks:
+      - restaurant_network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    environment:
+      - KAFKA_LISTENER_SECURITY_PROTOCOL=PLAINTEXT
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+    ports:
+      - "9092:9092"  # Expose port 9092 externally
+    networks:
+      - restaurant_network
+    depends_on:
+      - zookeeper  # Fixed the syntax error here
+
+  restaurant-application:
+    image: restaurant:latest
+    depends_on:
+      - kafka
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092  # Use the service name of Kafka
+    networks:
+      - restaurant_network
+
+  zookeeper:
+    platform: linux/x86_64
+    image: confluentinc/cp-zookeeper:5.5.0  # Kafka depends on Zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_LISTENER_PORT: 2181
+    ports:
+      - "2181:2181"  # Expose Zookeeper's port
+    networks:
+      - restaurant_network
+
+networks:
+  restaurant_network:
+    driver: bridge
