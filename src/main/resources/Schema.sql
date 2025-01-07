@@ -1,7 +1,7 @@
 USE RestaurantDB;
 
 CREATE TABLE IF NOT EXISTS restaurants (
-                                           restaurant_id CHAR(36) PRIMARY KEY,  -- Updated to snake_case
+   restaurant_id CHAR(36) PRIMARY KEY,  -- Updated to snake_case
                                            user_name VARCHAR(255) UNIQUE NOT NULL,  -- Updated to snake_case
                                            password VARCHAR(255) NOT NULL,
                                            restaurant_name VARCHAR(255) NOT NULL,  -- Updated to snake_case
